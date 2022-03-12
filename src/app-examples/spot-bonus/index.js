@@ -155,7 +155,7 @@ const SpotBonus = () => {
         }
         toastsList.push({
           key: Date.now(),
-          text: `One-Time Payment and Anytime Feedback orchestrated successfully!`
+          text: `One-Time Payment and Anytime Feedback orchestrated successfully`
         });
       }
       catch(err) {
