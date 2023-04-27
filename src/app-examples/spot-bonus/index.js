@@ -23,12 +23,11 @@ import { getFeedbackBadges, getPositionsForWorker, getWorkerDirectReports, launc
 
 /* 
 Give a Spot Bonus (One-Time Payment) with Anytime Feedback to your direct report(s). 
-An Orchestration provides a custom Workday REST API for this app to create the Spot Bonus in Workday with a single API request.
 This example is for demo purposes and is not officially supported by Workday.
 */
 const SpotBonus = () => {
   const DEFAULT_ONE_TIME_PAYMENT_PLAN_ID = "One-Time_Payment_Plan_ID=SPOT_BONUS";
-  const DEFAULT_CURRENCY = "Currency_ID=USD";
+  const DEFAULT_CURRENCY = "USD";
 
   const today = new Date().toISOString().split('T')[0];
   const toastsAnchorRef = useRef();
@@ -135,6 +134,7 @@ const SpotBonus = () => {
       oneTimePaymentData: {
         effectiveDate: inputEffectiveDate,
         planId: DEFAULT_ONE_TIME_PAYMENT_PLAN_ID,
+        planIdType: "WID",
         amount: parseInt(inputBonusAmount),
         currencyId: DEFAULT_CURRENCY,
         sendToPayroll: true
@@ -144,14 +144,15 @@ const SpotBonus = () => {
         comment: inputFeedback,
         showFeedbackProviderName: inputDisplayNameOnFeedback
       },
-      workerId: inputWorker
+      workerId: inputWorker,
+      workerIdType: "WID"
     };
     
     const triggerOrchestration = async() => {
       try {
         const orchestrationResult = await launchSpotBonusOrchestration(orchestrationRequestBody);
-        if (orchestrationResult.oneTimePayment?.statusCode >= 400 || orchestrationResult.anytimeFeedback?.statusCode >= 400) {
-          throw new Error(JSON.stringify(orchestrationResult));
+        if (orchestrationResult.errors) {
+          throw new Error(JSON.stringify(orchestrationResult.errors));
         }
         toastsList.push({
           key: Date.now(),
