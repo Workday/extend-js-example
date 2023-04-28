@@ -1,10 +1,10 @@
 import { blobToDataURL } from '../../common/utils/FileUtils';
-import { executeRequest, executeRequestForFile, ContentType, HttpHeader, HttpMethod } from '../../common/wcp/WcpRequest';
+import { executeRestApiRequest, executeRestApiRequestForFile, ContentType, HttpHeader, HttpMethod } from '../../common/wcp/WcpRequest';
 
 const BADGE_APP_ID = process.env.REACT_APP_EXTEND_APP_REFERENCE_ID_BADGE_GENERATOR;
 
 export const getCurrentBadgeData = async (workerId) => {
-  const badgesResponse = await executeRequest(
+  const badgesResponse = await executeRestApiRequest(
     HttpMethod.GET, 
     `apps/${BADGE_APP_ID}/v1/badges?worker=${workerId}&limit=100`, 
     { Accept: ContentType.APPLICATION_JSON });
@@ -18,7 +18,7 @@ export const getCurrentBadgeData = async (workerId) => {
 };
 
 export const getBadgeAttachment = async (badgeId) => {
-  const attachmentResponse = await executeRequestForFile(
+  const attachmentResponse = await executeRestApiRequestForFile(
     HttpMethod.GET, 
     `apps/${BADGE_APP_ID}/v1/badges/${badgeId}`)
   if (attachmentResponse) {
@@ -28,14 +28,14 @@ export const getBadgeAttachment = async (badgeId) => {
 };
 
 export const getWorkerData = async (workerId) => {
-  const workerDataResponse = await executeRequest(
+  const workerDataResponse = await executeRestApiRequest(
     HttpMethod.GET, 
     `staffing/v3/workers/${workerId}`);
   return workerDataResponse;
 };
 
 export const postBadge = async(formData, fileName) => {
-  const response = await executeRequest(
+  const response = await executeRestApiRequest(
     HttpMethod.POST, 
     `apps/${BADGE_APP_ID}/v1/badges`, 
     { 

@@ -1,11 +1,11 @@
 import { blobToDataURL } from '../utils/FileUtils';
-import { executeRequest, executeRequestForFile, HttpMethod } from '../wcp/WcpRequest';
+import { executeRestApiRequest, executeRestApiRequestForFile, HttpMethod } from '../wcp/WcpRequest';
 
 const PERSON_API_PATH = 'person/v2/people';
 
 export const fetchPersonPhotoAsDataUri = async(personId) => {
   const fetchPersonPhotoId = async(personId) => {
-    return executeRequest(HttpMethod.GET, `${PERSON_API_PATH}/${personId}/photos`)
+    return executeRestApiRequest(HttpMethod.GET, `${PERSON_API_PATH}/${personId}/photos`)
       .then((response) => {
         // api will return the full photo URL
         // parse out the WID for the photo only
@@ -19,7 +19,7 @@ export const fetchPersonPhotoAsDataUri = async(personId) => {
   };
 
   const fetchPhotoUri = async(photoId) => {
-    const photo = await executeRequestForFile(HttpMethod.GET, `${PERSON_API_PATH}/${personId}/photos/${photoId}`);
+    const photo = await executeRestApiRequestForFile(HttpMethod.GET, `${PERSON_API_PATH}/${personId}/photos/${photoId}`);
     return photo ? blobToDataURL(photo) : null;
   };
 
@@ -28,7 +28,7 @@ export const fetchPersonPhotoAsDataUri = async(personId) => {
 };
 
 export const fetchPersonPreferredName = async(personId) => {
-  return executeRequest(HttpMethod.GET, `${PERSON_API_PATH}/${personId}/preferredName`)
+  return executeRestApiRequest(HttpMethod.GET, `${PERSON_API_PATH}/${personId}/preferredName`)
     .then((response) => {
       return response.data[0].descriptor || '';
     })

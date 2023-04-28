@@ -20,15 +20,17 @@ import AppBox from '../../common/components/AppBox';
 import LoadingAnimation from '../../common/components/LoadingAnimation';
 import PageHeader from '../../common/components/PageHeader';
 
-import { getFeedbackBadges, getPositionsForWorker, getWorkerDirectReports, launchSpotBonusOrchestration } from './SpotBonusAppData';
+import { createSpotBonusMutation, getFeedbackBadges, getPositionsForWorker, getWorkerDirectReports } from './SpotBonusAppData';
 
 /* 
 Give a Spot Bonus (One-Time Payment) with Anytime Feedback to your direct report(s). 
 This example is for demo purposes and is not officially supported by Workday.
 */
 const SpotBonus = () => {
-  const DEFAULT_ONE_TIME_PAYMENT_PLAN_ID = "One-Time_Payment_Plan_ID=SPOT_BONUS";
+  const DEFAULT_ONE_TIME_PAYMENT_PLAN_ID = "SPOT_BONUS";
+  const DEFAULT_ONE_TIME_PAYMENT_PLAN_ID_TYPE = "One-Time_Payment_Plan_ID";
   const DEFAULT_CURRENCY = "USD";
+  const DEFAULT_CURRENCY_ID_TYPE = "Currency_ID"
 
   const today = new Date().toISOString().split('T')[0];
   const toastsAnchorRef = useRef();
@@ -130,34 +132,56 @@ const SpotBonus = () => {
 
   const submitSpotBonus = async () => {
     const toastsList = [...toasts];
-
-    const orchestrationRequestBody = {
-      oneTimePaymentData: {
-        effectiveDate: inputEffectiveDate,
-        planId: DEFAULT_ONE_TIME_PAYMENT_PLAN_ID,
-        planIdType: "WID",
-        amount: parseInt(inputBonusAmount),
-        currencyId: DEFAULT_CURRENCY,
-        sendToPayroll: true
-      },
-      feedbackData: {
-        badgeId: inputFeedbackBadge,
-        comment: inputFeedback,
-        showFeedbackProviderName: inputDisplayNameOnFeedback
-      },
-      workerId: inputWorker,
-      workerIdType: "WID"
+    const variables = {
+        "initiateWorkerFeedback_input": {
+          "badge": {
+            "id": {
+              "id": inputFeedbackBadge,
+              "type": "WID"
+            }
+          },
+          "comment": inputFeedback,
+          "showFeedbackProviderName": inputDisplayNameOnFeedback
+        },
+        "requestOneTimePayment_input": {
+          "effectiveDate": inputEffectiveDate,
+          "oneTimePayments": [
+            {
+              "oneTimePaymentPlan": {
+                "id": {
+                  "id": DEFAULT_ONE_TIME_PAYMENT_PLAN_ID,
+                  "type": DEFAULT_ONE_TIME_PAYMENT_PLAN_ID_TYPE
+                }
+              },
+              "paymentAmount": {
+                "currency": DEFAULT_CURRENCY,
+                "value": parseInt(inputBonusAmount)
+              },
+              "paymentCurrency": {
+                "id": {
+                  "id": DEFAULT_CURRENCY,
+                  "type": DEFAULT_CURRENCY_ID_TYPE
+                }
+              },
+              "sendToPayroll": true
+            }
+          ]
+        },
+        "workerId": {
+          "id": inputWorker,
+          "type": "WID"
+        }
     };
 
-    const triggerOrchestration = async () => {
+    const createSpotBonus = async () => {
       try {
-        const orchestrationResult = await launchSpotBonusOrchestration(orchestrationRequestBody);
-        if (orchestrationResult.errors) {
-          throw new Error(JSON.stringify(orchestrationResult.errors));
+        const createSpotBonusResult = await createSpotBonusMutation(variables);
+        if(createSpotBonusResult.errors) {
+          throw new Error(JSON.stringify(createSpotBonusResult.errors));
         }
         toastsList.push({
           key: Date.now(),
-          text: `One-Time Payment and Anytime Feedback orchestrated successfully!`
+          text: `Spot Bonus (One-Time Payment and Anytime Feedback) created successfully!`
         });
       }
       catch (err) {
@@ -172,7 +196,7 @@ const SpotBonus = () => {
     };
 
     setIsPageSubmitDisabled(true);
-    triggerOrchestration()
+    createSpotBonus()
       .then(() => setToasts(toastsList))
       .finally(() => setIsPageSubmitDisabled(false));
   };

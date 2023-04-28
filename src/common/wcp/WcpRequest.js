@@ -21,19 +21,44 @@ export const HttpMethod = {
   PUT: "PUT"
 };
 
-export const executeRequest = async (method, path, headers, body) => {
-  return makeRequest(method, path, headers, body).then((response) => response.json());
+const GRAPH_API_VERSION = 'v1';
+
+export const executeRestApiRequest = async (method, path, headers, body) => {
+  return makeRestApiRequest(method, path, headers, body).then((response) => response.json());
 };
 
-export const executeRequestForFile = async (method, path, headers, body) => {
-  return makeRequest(method, path, headers, body).then((response) => response.blob());
+export const executeRestApiRequestForFile = async (method, path, headers, body) => {
+  return makeRestApiRequest(method, path, headers, body).then((response) => response.blob());
 };
 
-const makeRequest = async (method, path, headers, body) => {
+export const executeGraphApiRequest = async(query, variables) => {
+  return makeGraphApiRequest(query, variables).then((response) => response.json());
+};
+
+export const executeOrchestration = async(method, headers, appId, orchestrationId, body) => {
+  return makeRestApiRequest(method, `orchestrate/v1/apps/${appId}/orchestrations/${orchestrationId}/launch`, headers, body);
+};
+
+const makeGraphApiRequest = async (query, variables) => {
+  const requestHeaders = {
+    [HttpHeader.AUTHORIZATION]: `Bearer ${getAccessToken()}`
+  };
+
+  return fetch(`https://${process.env.REACT_APP_WCP_API_GATEWAY_HOST}/graphql/${GRAPH_API_VERSION}`, {
+    method: "POST",
+    headers: requestHeaders,
+    body: JSON.stringify({
+      query,
+      variables: variables
+    })
+  });
+};
+
+const makeRestApiRequest = async (method, path, headers, body) => {
   const requestHeaders = {
     [HttpHeader.AUTHORIZATION]: `Bearer ${getAccessToken()}`,
     ...headers
-  }
+  };
 
   return fetch(`https://${process.env.REACT_APP_WCP_API_GATEWAY_HOST}/${path}`, {
     method: method,

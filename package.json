@@ -16,6 +16,7 @@
     "@workday/canvas-kit-react": "^8.6.1",
     "@workday/canvas-system-icons-web": "^3.0.15",
     "crypto-js": "^4.1.1",
+    "graphql": "^16.6.0",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^3.1.2",
     "query-string": "^8.1.0",
