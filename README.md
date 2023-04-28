@@ -35,13 +35,14 @@ Please note this project is for demonstration and educational purposes, and is n
 
 #### Spot Bonus
 
-Give a Spot Bonus (One-Time Payment) with Anytime Feedback to your direct report(s). An Orchestration provides a custom Workday REST API for this app to create the Spot Bonus in Workday with a single API request.
+Give a Spot Bonus (One-Time Payment) with Anytime Feedback to your direct reports, using Workday Graph API.
 
 1. Add the following Scopes to your Workday Cloud Platform API Client: `Core Compensation` `Talent Core` `Workday Extend`.
-2. Deploy the [Spot Bonus App from the App Catalog](https://developer.workday.com/app-catalog/createSpotBonus) to your Developer Tenant and follow the configuration instructions.
-3. Modify the `.env` file in the project root to set the **REACT_APP_EXTEND_APP_REFERENCE_ID_SPOT_BONUS** value to your Workday Extend App Reference ID (ex. `REACT_APP_EXTEND_APP_REFERENCE_ID_SPOT_BONUS=oneTimePaymentWithFeedback_abcdef`)
-4. Stop the server process if it is running (`CTRL+C` or close Terminal window), and run `npm start` to launch the app again.
-   - _Note_: Changes to the `.env` file require you to restart the server if it is running in order to take effect.
+2. In your Development Tenant, enable the `Workday Graph API Applications` **Security Domain Policy** and add **Modify** permissions so users can execute **Workday Graph API** requests.
+3. In your Development Tenant, configure the `Request One-Time Payment` **Business Process Security Policy** to add the following permissions:
+   - `Request One-Time Payment (REST Service)`
+    * **Initiating Action**: `Manager`
+4. Run the `Activate Pending Security Policy Changes` task to activate your changes.
 5. Explore using the app to create Spot Bonuses for users in your Workday Developer Tenant.
 
 #### Worker Badge Generator

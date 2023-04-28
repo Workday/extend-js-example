@@ -14,10 +14,6 @@ import SpotBonus from './app-examples/spot-bonus';
 
 const AppRoutes = () => {
 
-  const isSpotBonusAppConfigured = () => {
-    return process.env.REACT_APP_EXTEND_APP_REFERENCE_ID_SPOT_BONUS ? true : false;
-  };
-
   const isBadgeGeneratorAppConfigured = () => {
     return process.env.REACT_APP_EXTEND_APP_REFERENCE_ID_BADGE_GENERATOR ? true : false;
   };
@@ -26,7 +22,7 @@ const AppRoutes = () => {
     <Routes>
       <Route exact={true} path="/" element={<Home />} />
       <Route path="/authorize" element={<Authorize />} />
-      <Route path="/spot-bonus" element={isAuthenticated() ? (isSpotBonusAppConfigured() ? <SpotBonus /> : <ErrorAppNotConfigured />) : <ErrorNotAuthenticated />} />
+      <Route path="/spot-bonus" element={isAuthenticated() ? <SpotBonus /> : <ErrorNotAuthenticated />} />
       <Route path="/badge-generator" element={isAuthenticated() ? (isBadgeGeneratorAppConfigured() ? <BadgeGenerator/> : <ErrorAppNotConfigured/>) : <ErrorNotAuthenticated />} />
       <Route element={ErrorNotFound} />
     </Routes>
