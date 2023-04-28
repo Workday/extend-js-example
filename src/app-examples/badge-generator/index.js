@@ -1,19 +1,19 @@
 import React, { createRef, useEffect, useRef, useState } from 'react';
 
-import styled from '@emotion/styled';
-
 import { PrimaryButton, SecondaryButton } from "@workday/canvas-kit-react/button";
 import { colors, space, type } from "@workday/canvas-kit-react/tokens";
-import FormField, { FormFieldLabelPosition } from "@workday/canvas-kit-react/form-field";
+import { FormField, FormFieldLabelPosition } from "@workday/canvas-kit-react/form-field";
+import { Grid } from "@workday/canvas-kit-react/layout";
 import { Modal, useModalModel } from "@workday/canvas-kit-react/modal";
-import { Layout } from "@workday/canvas-kit-react/layout";
-import { LoadingDots } from "@workday/canvas-kit-react/loading-animation";
 import { Popper } from "@workday/canvas-kit-react/popup";
+import { Heading, Text } from '@workday/canvas-kit-react/text';
 import { Toast } from "@workday/canvas-kit-react/toast";
 import { cameraPlusIcon, exclamationCircleIcon, loopIcon, uploadClipIcon, uploadCloudIcon } from '@workday/canvas-system-icons-web';
 
 import { blobToDataURL } from '../../common/utils/FileUtils';
 
+import AppBox from '../../common/components/AppBox';
+import LoadingAnimation from '../../common/components/LoadingAnimation';
 import PageHeader from '../../common/components/PageHeader';
 
 import { getBadgeAttachment, getCurrentBadgeData, getWorkerData, postBadge } from './BadgeAppData';
@@ -153,61 +153,67 @@ const BadgeGenerator = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <PageHeader id="pageHeader" title="Badge Generator" />
+      <AppBox>
+        <Grid ref={toastsAnchorRef}>
+          <Popper placement="top" open={toasts.length > 0} anchorElement={toastsAnchorRef}>
+            {toasts.map((toast) => <Toast key={toast.key} iconColor={toast.color} icon={toast.icon} onClose={() => setToasts(toasts.filter((t) => t.key !== toast.key))}>{toast.text} </Toast>)}
+          </Popper>
 
-      <LayoutContainer ref={toastsAnchorRef}>
-        <Popper placement="top" open={toasts.length > 0} anchorElement={toastsAnchorRef}>
-          {toasts.map((toast) => <Toast key={toast.key} iconColor={toast.color} icon={toast.icon} onClose={() => setToasts(toasts.filter((t) => t.key !== toast.key))}>{toast.text} </Toast>)}
-        </Popper>
-
-        {isPageLoading ?
-          <LoadingAnimationContainer>
-            <LoadingDots />
-          </LoadingAnimationContainer>
-          :
-          <Layout>
-            <Layout.Column columns={6}>
-              <LayoutSectionTitle>Worker</LayoutSectionTitle>
-              <CanvasLabel>Name</CanvasLabel>
-              <CanvasLabelValue>{workerData?.descriptor}</CanvasLabelValue>
-              <CanvasLabel>Title</CanvasLabel>
-              <CanvasLabelValue>{workerData?.primaryJob?.businessTitle}</CanvasLabelValue>
-              <CanvasLabel>Location</CanvasLabel>
-              <CanvasLabelValue>{workerData?.primaryJob?.location?.descriptor}</CanvasLabelValue>
-
-              <LayoutSectionTitle>Generate New Badge</LayoutSectionTitle>
-              <PrimaryButton
-                size={"medium"}
-                icon={cameraPlusIcon}
-                onClick={() => { setCreationMode(CreationMode.CAMERA); creationModalModel.events.show(); }}>Take Photo</PrimaryButton>
-              <SecondaryButton
-                size={"medium"}
-                icon={uploadClipIcon}
-                onClick={() => { setCreationMode(CreationMode.FILE_UPLOAD); creationModalModel.events.show(); }}
-                style={{ marginLeft: space.m }}>Upload Photo</SecondaryButton>
-            </Layout.Column>
-            <Layout.Column columns={6}>
-              <LayoutSectionTitle>Current Badge</LayoutSectionTitle>
-              {currentBadgeAttachmentUri ?
-                <React.Fragment>
-                  <Layout.Column>
-                    <img src={currentBadgeAttachmentUri} alt="current badge" />
-                  </Layout.Column>
-                  <Layout.Column>
-                    <CanvasLabel>Workday ID</CanvasLabel>
-                    <CanvasLabelValue>{currentBadgeMetadata?.id}</CanvasLabelValue>
-                    <CanvasLabel>Date Uploaded</CanvasLabel>
-                    <CanvasLabelValue>{currentBadgeMetadata?.dateUploaded}</CanvasLabelValue>
-                  </Layout.Column>
-                </React.Fragment>
-                :
-                <p>No Badge exists for this Worker.</p>
-              }
-            </Layout.Column>
-          </Layout>
-        }
-      </LayoutContainer>
+          {isPageLoading ?
+            <LoadingAnimation />
+            :
+            <Grid>
+              <Grid.Item gridRowStart="1">
+                <Grid>
+                  <Grid.Item>
+                    <GridTitle>Worker</GridTitle>
+                    <FormField label="Name">
+                      <Text as="span" {...type.levels.subtext.large}>{workerData?.descriptor}</Text>
+                    </FormField>
+                    <FormField label="Business Title">
+                      <Text as="span" {...type.levels.subtext.large}>{workerData?.primaryJob?.businessTitle}</Text>
+                    </FormField>
+                    <FormField label="Location">
+                      <Text as="span" {...type.levels.subtext.large}>{workerData?.primaryJob?.location?.descriptor}</Text>
+                    </FormField>
+                  </Grid.Item>
+                  <Grid.Item>
+                    <GridTitle>Generate New Badge</GridTitle>
+                      <PrimaryButton
+                        size={"medium"}
+                        icon={cameraPlusIcon}
+                        onClick={() => { setCreationMode(CreationMode.CAMERA); creationModalModel.events.show(); }}>Take Photo</PrimaryButton>
+                      <SecondaryButton
+                        size={"medium"}
+                        icon={uploadClipIcon}
+                        onClick={() => { setCreationMode(CreationMode.FILE_UPLOAD); creationModalModel.events.show(); }}
+                        style={{ marginLeft: space.m }}>Upload Photo</SecondaryButton>
+                  </Grid.Item>
+                </Grid>
+              </Grid.Item>
+             
+              <Grid.Item gridRowStart="1">
+                <GridTitle>Current Badge</GridTitle>
+                  {currentBadgeAttachmentUri ?
+                    <React.Fragment>
+                        <img src={currentBadgeAttachmentUri} alt="current badge" />
+                        <FormField label="Workday ID">
+                          <Text as="span" {...type.levels.subtext.large}>{currentBadgeMetadata?.id}</Text>
+                        </FormField>
+                        <FormField label="Date Uploaded">
+                          <Text as="span" {...type.levels.subtext.large}>{currentBadgeMetadata?.dateUploaded}</Text>
+                        </FormField>
+                    </React.Fragment>
+                    :
+                    <Text as="span" {...type.levels.subtext.large}>No Badge exists for this Worker.</Text>
+                  }
+              </Grid.Item>
+            </Grid>
+          }
+        </Grid>
+      </AppBox>
 
       <Modal model={creationModalModel}>
         <Modal.Overlay>
@@ -216,24 +222,24 @@ const BadgeGenerator = () => {
             <Modal.Heading>Generate New Badge</Modal.Heading>
             <Modal.Body>
               {creationMode === CreationMode.CAMERA ?
-                <Layout style={{ display: !proposedSourceImageUri ? 'block' : 'none' }}>
-                  <Layout.Column>
-                    <BadgeImageCapture onImageCaptured={(imageUri) => setProposedSourceImageUri(imageUri)}  />
-                  </Layout.Column>
-                </Layout>
+                  <div style={{ display: !proposedSourceImageUri ? 'block' : 'none' }}>
+                    <div>
+                      <BadgeImageCapture onImageCaptured={(imageUri) => setProposedSourceImageUri(imageUri)}  />
+                    </div>
+                  </div>
                 :
                 null
               }
               {creationMode === CreationMode.FILE_UPLOAD ?
-                <Layout style={{ display: !proposedSourceImageUri ? 'block' : 'none' }}>
+                <Grid style={{ display: !proposedSourceImageUri ? 'block' : 'none' }}>
                   <FormField label="Select a File" labelPosition={FormFieldLabelPosition.Top} inputId="imageUpload" required={false}>
                     <input ref={fileUploadRef} type="file" accept=".jpg, .jpeg, .gif, .png" onChange={onFileUpload} />
                   </FormField>
-                </Layout>
+                </Grid>
                 :
                 null
               }
-              <Layout style={{ display: proposedSourceImageUri ? 'block' : 'none' }}>
+              <Grid style={{ display: proposedSourceImageUri ? 'block' : 'none' }}>
                 <FormField label="Generated Badge Image" labelPosition={FormFieldLabelPosition.Top} inputId="generatedImage" required={false}>
                   <BadgeImageCanvas imageHeight={760} imageWidth={480} formatType={BADGE_IMAGE_FORMAT_TYPE} ref={badgeImageCanvasRef} workerData={workerData} imageUri={proposedSourceImageUri} />
                 </FormField>
@@ -248,39 +254,19 @@ const BadgeGenerator = () => {
                   onClick={onTryAgain}
                   disabled={!proposedSourceImageUri}
                   style={{ marginLeft: space.m }}>Try Again</SecondaryButton>
-              </Layout>
+              </Grid>
             </Modal.Body>
           </Modal.Card>
         </Modal.Overlay>
       </Modal>
-    </React.Fragment>
+    </>
   );
 };
 
-const CanvasLabel = styled('label')({
-  marginTop: space.s,
-  fontWeight: type.properties.fontWeights.medium
-});
-
-const CanvasLabelValue = styled('p')({
-  marginTop: space.xxs
-});
-
-const LoadingAnimationContainer = styled.div({
-  left: "calc(50% - 38px)",
-  position: "absolute",
-  top: "50%"
-});
-
-const LayoutContainer = styled('div')({
-  marginLeft: space.m,
-  marginRight: space.m,
-  paddingBottom: space.xxl,
-  ...type.levels.subtext.large
-});
-
-const LayoutSectionTitle = styled('h2') ({
-  ...type.levels.heading.small
-});
+const GridTitle = (props) => {
+  return (
+    <Heading as="h2" size="small">{props.children}</Heading>
+  )
+};
 
 export default BadgeGenerator;

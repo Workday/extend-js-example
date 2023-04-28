@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { PrimaryButton } from "@workday/canvas-kit-react/button";
 import { space } from "@workday/canvas-kit-react/tokens";
 import { cameraPlusIcon } from '@workday/canvas-system-icons-web';
-import { Layout } from '@workday/canvas-kit-react';
+import { Grid } from '@workday/canvas-kit-react/layout';
 
 const BadgeImageCapture = (props) => {
   const BADGE_IMAGE_HEIGHT = 760;
@@ -61,24 +61,24 @@ const BadgeImageCapture = (props) => {
   }, [cameraStream]);
 
   return (
-    <Layout>
-      <Layout.Column>
-        <CaptureContainer>
-          <p style={{ display: cameraNotEnabled ? 'block' : 'none' }}>Please enable your camera to capture a photo.</p>
-          <video id="video" ref={videoRef}>Your browser does not support photo capture.</video>
-          <canvas id="canvas" ref={canvasRef} style={{ display: 'none' }} />
-        </CaptureContainer>
-        <PrimaryButton
-          size={"medium"}
-          icon={cameraPlusIcon}
-          onClick={handleImageCaptured} disabled={cameraNotEnabled}>Take Photo</PrimaryButton>
-      </Layout.Column>
-    </Layout>
+    <Grid>
+      <CaptureContainer>
+        <p style={{ display: cameraNotEnabled ? 'block' : 'none' }}>Please enable your camera to capture a photo.</p>
+        <video id="video" ref={videoRef} preload="none">Your browser does not support photo capture.</video>
+        <canvas id="canvas" ref={canvasRef} style={{ display: 'none' }} />
+      </CaptureContainer>
+      <PrimaryButton
+        size={"medium"}
+        icon={cameraPlusIcon}
+        onClick={handleImageCaptured} disabled={cameraNotEnabled}>Take Photo</PrimaryButton>
+    </Grid>
   );
 };
 
 const CaptureContainer = styled('div') ({
-  marginBottom: space.m
+  marginBottom: space.m,
+  marginLeft: "auto",
+  marginRight: "auto"
 });
 
 export default BadgeImageCapture;

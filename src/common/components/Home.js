@@ -5,7 +5,6 @@ import styled from '@emotion/styled';
 
 import { Card } from "@workday/canvas-kit-react/card";
 import { colors, space, type } from "@workday/canvas-kit-react/tokens";
-import { Layout } from "@workday/canvas-kit-react/layout";
 import { AppletIcon } from "@workday/canvas-kit-react/icon";
 import { fallbackIcon, recentSignOnsIcon, workerSpendIcon } from '@workday/canvas-applet-icons-web';
 
@@ -46,7 +45,7 @@ const Home = () => {
   );
 };
 
-const CardLayout = styled(Layout) ({
+const CardLayout = styled("div") ({
   display: "flex",
   flexWrap: "wrap",
   justifyContent: "center",
@@ -73,17 +72,18 @@ const HomeCard = styled(Card) ({
   height: "250px",
   justifyContent: "center",
   marginBottom: space.l,
-  marginRight: space.l,
+  marginRight: space.xl,
   padding: space.l,
   textAlign: "center",
-  width: "450px",
+  minWidth: "450px",
+  maxWidth: "450px",
   [`&:hover`]: {
     backgroundColor: colors.soap100
   }
 });
 
 const HomeCardComingSoon = styled(HomeCard) ({
-  backgroundColor: `${colors.soap100} !important`
+  backgroundColor: `${colors.soap200} !important`
 });
 
 export default Home;

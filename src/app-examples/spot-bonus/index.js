@@ -1,22 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import styled from '@emotion/styled';
 
 import { ActionBar } from "@workday/canvas-kit-react/action-bar";
 import { PrimaryButton } from "@workday/canvas-kit-react/button";
-import { colors, space, type } from "@workday/canvas-kit-react/tokens";
-import FormField from "@workday/canvas-kit-react/form-field";
-import { Layout } from "@workday/canvas-kit-react/layout";
-import { LoadingDots } from "@workday/canvas-kit-react/loading-animation";
+import { colors } from "@workday/canvas-kit-react/tokens";
+import { FormField } from "@workday/canvas-kit-react/form-field";
+import { Grid } from "@workday/canvas-kit-react/layout";
 import { Popper } from "@workday/canvas-kit-react/popup";
 import { Radio, RadioGroup } from "@workday/canvas-kit-react/radio";
-import Select from "@workday/canvas-kit-preview-react/select";
+import { Select } from "@workday/canvas-kit-preview-react/select";
 import { Switch } from "@workday/canvas-kit-react/switch";
-import TextArea from "@workday/canvas-kit-react/text-area";
+import { Heading } from '@workday/canvas-kit-react/text';
+import { TextArea } from "@workday/canvas-kit-react/text-area";
 import { Toast } from "@workday/canvas-kit-react/toast";
 import { Tooltip } from "@workday/canvas-kit-react/tooltip";
 import { exclamationCircleIcon } from '@workday/canvas-system-icons-web';
 
+import AppBox from '../../common/components/AppBox';
+import LoadingAnimation from '../../common/components/LoadingAnimation';
 import PageHeader from '../../common/components/PageHeader';
 
 import { getFeedbackBadges, getPositionsForWorker, getWorkerDirectReports, launchSpotBonusOrchestration } from './SpotBonusAppData';
@@ -67,7 +68,7 @@ const SpotBonus = () => {
     }
   }, [inputWorker]);
 
-  const fetchFeedbackBadges = async() => {
+  const fetchFeedbackBadges = async () => {
     const fetchedFeedbackBadges = [];
 
     const feedbackBadges = await getFeedbackBadges();
@@ -87,27 +88,27 @@ const SpotBonus = () => {
     }
   };
 
-  const fetchPositionsForWorker = async(workerId) => {
+  const fetchPositionsForWorker = async (workerId) => {
     const positions = [];
 
     const fetchedPositions = await getPositionsForWorker(workerId);
-      if (fetchedPositions.data) {
-        fetchedPositions.data.forEach(result => {
-          positions.push({
-            value: result.id,
-            display: result.descriptor
-          });
+    if (fetchedPositions.data) {
+      fetchedPositions.data.forEach(result => {
+        positions.push({
+          value: result.id,
+          display: result.descriptor
         });
+      });
 
-        setPositionsForWorker(positions);
-        setInputWorkerPosition(positions[0].value);
-      }
-      else {
-        throw new Error(fetchedPositions.error);
-      }
+      setPositionsForWorker(positions);
+      setInputWorkerPosition(positions[0].value);
+    }
+    else {
+      throw new Error(fetchedPositions.error);
+    }
   };
 
-  const fetchDirectReports = async() => {
+  const fetchDirectReports = async () => {
     const directReports = [];
 
     const workerDirectReports = await getWorkerDirectReports('me');
@@ -127,9 +128,9 @@ const SpotBonus = () => {
     }
   };
 
-  const submitSpotBonus = async() => {
+  const submitSpotBonus = async () => {
     const toastsList = [...toasts];
-    
+
     const orchestrationRequestBody = {
       oneTimePaymentData: {
         effectiveDate: inputEffectiveDate,
@@ -147,8 +148,8 @@ const SpotBonus = () => {
       workerId: inputWorker,
       workerIdType: "WID"
     };
-    
-    const triggerOrchestration = async() => {
+
+    const triggerOrchestration = async () => {
       try {
         const orchestrationResult = await launchSpotBonusOrchestration(orchestrationRequestBody);
         if (orchestrationResult.errors) {
@@ -159,7 +160,7 @@ const SpotBonus = () => {
           text: `One-Time Payment and Anytime Feedback orchestrated successfully!`
         });
       }
-      catch(err) {
+      catch (err) {
         console.error(err);
         toastsList.push({
           key: Date.now(),
@@ -169,7 +170,7 @@ const SpotBonus = () => {
         });
       }
     };
-    
+
     setIsPageSubmitDisabled(true);
     triggerOrchestration()
       .then(() => setToasts(toastsList))
@@ -179,7 +180,7 @@ const SpotBonus = () => {
   return <>
     <PageHeader id="pageHeader" title="Spot Bonus" />
 
-    <LayoutContainer ref={toastsAnchorRef}>
+    <AppBox ref={toastsAnchorRef}>
       <Popper placement="top" open={toasts.length > 0} anchorElement={toastsAnchorRef}>
         {toasts.map((toast) => <Toast key={toast.key} iconColor={toast.color} icon={toast.icon} onClose={() => setToasts(toasts.filter((t) => t.key !== toast.key))}>{toast.text} </Toast>)}
       </Popper>
@@ -187,10 +188,10 @@ const SpotBonus = () => {
       {isPageLoading ? <LoadingAnimation />
         :
         (
-          <>
-            <LayoutSectionTitle>Worker</LayoutSectionTitle>
-            <Layout>
-              <Layout.Column>
+          <Grid>
+            <Grid.Item>
+              <GridTitle>Worker</GridTitle>
+              <Grid gridAutoFlow="column" gridTemplateColumns="repeat(3, 33.3%)">
                 <FormField label="Worker" inputId="inputWorker" required={true}>
                   <Select
                     id="inputWorker"
@@ -199,90 +200,77 @@ const SpotBonus = () => {
                     onChange={event => setInputWorker(event.target.value)}
                     options={workers.map((worker) => { return { key: worker.value, value: worker.value, label: worker.display }; })} />
                 </FormField>
-              </Layout.Column>
-              <Layout.Column>
                 <FormField label="Position" inputId="inputPosition" required={true}>
                   <Select
                     id="inputPosition"
                     name="position"
                     value={inputWorkerPosition}
                     onChange={event => setInputWorkerPosition(event.target.value)}
-                    options={positionsForWorker.map((position) => { return { key: position.value, value: position.value, label: position.display }; })}/>
+                    options={positionsForWorker.map((position) => { return { key: position.value, value: position.value, label: position.display }; })} />
                 </FormField>
-              </Layout.Column>
-            </Layout>
+             </Grid>
+            </Grid.Item>
 
-            <LayoutSectionTitle>Award</LayoutSectionTitle>
-            <Layout>
-              <Layout.Column>
+            <Grid.Item>
+              <GridTitle>Award</GridTitle>
+              <Grid gridAutoFlow="column" gridTemplateColumns="repeat(3, 33.3%)">
                 <FormField label="Amount" inputId="inputAmount" required={true}>
-                  <Select 
-                    id="inputAmount" 
-                    name="amount" 
-                    value={inputBonusAmount} 
+                  <Select
+                    id="inputAmount"
+                    name="amount"
+                    value={inputBonusAmount}
                     onChange={event => setInputBonusAmount(event.target.value)}
                     options={[
-                    { key: "25", value: "25", label: "25" },
-                    { key: "50", value: "50", label: "50" },
-                    { key: "100", value: "100", label: "100" },
-                    { key: "250", value: "250", label: "250" },
-                    { key: "500", value: "500", label: "500" }
-                    ]}/>
+                      { key: "25", value: "25", label: "25" },
+                      { key: "50", value: "50", label: "50" },
+                      { key: "100", value: "100", label: "100" },
+                      { key: "250", value: "250", label: "250" },
+                      { key: "500", value: "500", label: "500" }
+                    ]} />
                 </FormField>
-              </Layout.Column>
-              <Layout.Column>
                 <FormField label="Date" inputId="inputEffectiveDate" required={true}>
                   <Tooltip id="inputEffectiveDate" type="describe" placement="bottom-start" title="The Spot Bonus will be paid to the worker on their first pay for this position occuring on or after this date.">
                     <input style={{ height: '38px' }} type="date" id="effectiveDate" name="effectiveDate" data-date-format="YYYY-MM-DD" value={inputEffectiveDate} onChange={event => setInputEffectiveDate(event.target.value)} />
                   </Tooltip>
                 </FormField>
-              </Layout.Column>
-            </Layout>
+              </Grid>
+            </Grid.Item>
 
-            <LayoutSectionTitle>Feedback</LayoutSectionTitle>
-            <Layout>
-              <Layout.Column>
-                <FormField label="Feedback" inputId="inputFeedback" required={true}>
-                  <TextArea id="inputFeedback" value={inputFeedback} onChange={event => setInputFeedback(event.target.value)} />
-                </FormField>
-                <FormField label="Display Your Name on Feedback" inputId="inputDisplayNameOnFeedback" required={false}>
-                  <Switch id="inputDisplayNameOnFeedback" checked={inputDisplayNameOnFeedback} onChange={event => setInputDisplayNameOnFeedback(event.target.checked)} />
-                </FormField>
-              </Layout.Column>
-              <Layout.Column>
-                <FormField label="Feedback Badge" inputId="inputFeedbackBadge" required={true}>
-                  <RadioGroup name="feedbackBadges" value={inputFeedbackBadge}>
-                    {feedbackBadges.map((badge) => <Radio id={badge.value} key={badge.value} value={badge.value} label={badge.display} onChange={event => setInputFeedbackBadge(event.target.value)} />)}
-                  </RadioGroup>
-                </FormField>
-              </Layout.Column>
-            </Layout>
-          </>
+            <Grid.Item>
+              <GridTitle>Feedback</GridTitle>
+                <Grid gridAutoFlow="column" gridTemplateColumns="repeat(3, 33.3%)">
+                  <FormField label="Feedback" inputId="inputFeedback" required={true}>
+                    <TextArea id="inputFeedback" value={inputFeedback} onChange={event => setInputFeedback(event.target.value)} />
+                  </FormField>
+                  <FormField label="Feedback Badge" inputId="inputFeedbackBadge" required={true}>
+                    <RadioGroup name="feedbackBadges" value={inputFeedbackBadge}>
+                      {feedbackBadges.map((badge) => <Radio id={badge.value} key={badge.value} value={badge.value} label={badge.display} onChange={event => setInputFeedbackBadge(event.target.value)} />)}
+                    </RadioGroup>
+                  </FormField>
+                  <FormField label="Display Your Name on Feedback" inputId="inputDisplayNameOnFeedback" required={false}>
+                    <Switch id="inputDisplayNameOnFeedback" checked={inputDisplayNameOnFeedback} onChange={event => setInputDisplayNameOnFeedback(event.target.checked)} />
+                  </FormField>
+                </Grid>
+            </Grid.Item>
+          </Grid>
         )}
 
-      <ActionBar fixed={true}>
-        <PrimaryButton
-          disabled={isPageLoading || isPageSubmitDisabled}
-          onClick={() => submitSpotBonus()}>Submit</PrimaryButton>
+      <ActionBar>
+        <ActionBar.List>
+          <ActionBar.Item
+            as={PrimaryButton}
+            disabled={isPageLoading || isPageSubmitDisabled}
+            onClick={() => submitSpotBonus()}>Submit</ActionBar.Item>
+        </ActionBar.List>
       </ActionBar>
-    </LayoutContainer>
+    </AppBox>
   </>;
 };
 
-const LoadingAnimation = styled(LoadingDots) ({
-  left: "calc(50% - 38px)",
-  position: "absolute",
-  top: "50%"
-});
-
-const LayoutContainer = styled('div') ({
-  marginLeft: space.m,
-  marginRight: space.m,
-  paddingBottom: space.xxl
-});
-
-const LayoutSectionTitle = styled('h2') ({
-  ...type.levels.heading.small
-});
+const GridTitle = (props) => {
+  return (
+    <Heading as="h2" size="small">{props.children}</Heading>
+  )
+};
 
 export default SpotBonus;

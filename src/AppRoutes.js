@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { isAuthenticated } from './common/wcp/WcpAuthorization';
 
@@ -23,13 +23,13 @@ const AppRoutes = () => {
   };
 
   return (
-    <Switch>
-      <Route exact={true} path="/" component={Home} />
-      <Route path="/authorize" component={Authorize} />
-      <Route path="/spot-bonus" component={isAuthenticated() ? (isSpotBonusAppConfigured() ? SpotBonus : ErrorAppNotConfigured) : ErrorNotAuthenticated} />
-      <Route path="/badge-generator" component={isAuthenticated() ? (isBadgeGeneratorAppConfigured() ? BadgeGenerator : ErrorAppNotConfigured) : ErrorNotAuthenticated} />
-      <Route component={ErrorNotFound} />
-    </Switch>
+    <Routes>
+      <Route exact={true} path="/" element={<Home />} />
+      <Route path="/authorize" element={<Authorize />} />
+      <Route path="/spot-bonus" element={isAuthenticated() ? (isSpotBonusAppConfigured() ? <SpotBonus /> : <ErrorAppNotConfigured />) : <ErrorNotAuthenticated />} />
+      <Route path="/badge-generator" element={isAuthenticated() ? (isBadgeGeneratorAppConfigured() ? <BadgeGenerator/> : <ErrorAppNotConfigured/>) : <ErrorNotAuthenticated />} />
+      <Route element={ErrorNotFound} />
+    </Routes>
   );
 };
 
