@@ -190,7 +190,7 @@ const SpotBonus = () => {
           key: Date.now(),
           icon: exclamationCircleIcon,
           color: colors.cinnamon500,
-          text: "There was a problem completing the orchestration. See Console for more details."
+          text: "There was a problem creating the Spot Bonus. See Console for more details."
         });
       }
     };

@@ -25,7 +25,7 @@ export const launchSpotBonusOrchestration = async(spotBonusData) => {
 
 export const createSpotBonusMutation = async(variables) => {
   return executeGraphApiRequest(
-    `mutation createSpotBonus($initiateWorkerFeedback_input: PerformanceEnablement_GiveFeedbackDetailCreateInput!, $requestOneTimePayment_input: Compensation_OneTimePaymentPlanEventInputCreateInput!, $workerId: IdentifierInput!) {
+    `mutation createSpotBonus($initiateWorkerFeedback_input: PerformanceEnablement_GiveFeedbackDetail_CreateInput!, $requestOneTimePayment_input: Compensation_OneTimePaymentPlanEventInput_CreateInput!, $workerId: IdentifierInput!) {
       initiateWorkerFeedback(
         input: $initiateWorkerFeedback_input
         workerId: $workerId
@@ -39,7 +39,7 @@ export const createSpotBonusMutation = async(variables) => {
       ) {
         descriptor
         effectiveDate
-        }
+      }
     }`, variables
   );
 };
